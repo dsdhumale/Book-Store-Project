@@ -1,7 +1,7 @@
 import User from '../models/user.model';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import {sendMail} from '../utils/user.util';
+import { sendMail } from '../utils/user.util';
 
 //Register and create new user and hashing password
 export const newUserRegistration = async (body) => {
@@ -17,7 +17,26 @@ export const newUserRegistration = async (body) => {
   }
 };
 
+//Login with email ID and password
+export const login = async (body) => {
+  // To check email id is register or not in database
+  const data = await User.findOne({ emailID: body.emailID });
+  if (data !== null) {
+    // bcrypt compare function used for validating password
+    const result = await bcrypt.compare(body.password, data.password);
 
+    if (result) {
+      var token = jwt.sign({ 'id': data._id, 'firstName': data.firstName, 'emailID': data.emailID }, process.env.SECRET_KEY);
+      return token;
+    }
+    else {
+      throw new Error("Entered Password is Invalid ");
+    }
+  }
+  else {
+    throw new Error("Entered Email ID is Invalid");
+  }
+};
 
 
 

@@ -53,4 +53,21 @@ export const forgotPassword = async (body) => {
 };
 
 
+//reset password
+export const resetPassword = async (body) => {
+  const saltRounds = 10;
+    const hashpassword = await bcrypt.hash(body.password, saltRounds);
+    body.password = hashpassword;
+  const data = await User.findOneAndUpdate(
+    {
+      emailID: body.emailID
+    },
+    { password: body.password },
+    {
+      new: true
+    }
+  );
+  return data;
+};
+
 

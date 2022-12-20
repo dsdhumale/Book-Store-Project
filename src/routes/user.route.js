@@ -9,5 +9,6 @@ const router = express.Router();
 router.post('/registration', registrationValidator,userController.newUserRegistration);
 
 
+
 export default router;
 

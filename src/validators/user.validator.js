@@ -16,3 +16,4 @@ export const registrationValidator = (req, res, next) => {
     next();
   }
 };
+

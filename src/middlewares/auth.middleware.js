@@ -40,8 +40,8 @@ export const userAuth = async (req, res, next) => {
         };
       bearerToken = bearerToken.split(' ')[1];
       const user = await jwt.verify(bearerToken, process.env.SECRET_KEY);
-      req.body.userID=user.emailID
-      console.log("user",req.body.userID);
+      req.body.userId=user.emailID
+      console.log("user",req.body.userId);
       next();
     } catch (error) {
       next(error);

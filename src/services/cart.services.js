@@ -66,45 +66,75 @@ export const addBookToCart = async (body, _id) => {
 
 
 //remove single book from cart
-export const  removeBookFromCart = async (body,_id) => {
+export const removeBookFromCart = async (body, _id) => {
     const cartData = await Cart.findOne({ userId: body.userId });
     console.log("cartData", cartData);
     let totalCartPrice = cartData.cart_total;
     if (cartData != null) {
         let flag = false;
-         await cartData.books.forEach(element => {
-            console.log("element...");
-            if(element.productId == _id && element.quantity > 1){
-                console.log("element....");
+        await cartData.books.forEach(element => {
+            if (element.productId == _id && element.quantity > 1) {
                 --element.quantity;
-                totalCartPrice -= element.price ;
-                flag =true;
+                totalCartPrice -= element.price;
+                flag = true;
             }
-            else if(element.productId == _id && element.quantity == 1){
-                console.log("element......");
-                totalCartPrice -= element.price ;
-                console.log("index",cartData.books.indexOf(element));
+            else if (element.productId == _id && element.quantity == 1) {
+                totalCartPrice -= element.price;
                 cartData.books.splice(cartData.books.indexOf(element), 1);
-                flag =true;
+                flag = true;
             }
-        
-         });    
-         if(flag){
+
+        });
+        if (flag) {
             let bookData = await Books.findOne({ _id });
-            if(bookData != null){
+            if (bookData != null) {
                 ++bookData.quantity;
-                await Books.findOneAndUpdate( { _id}, bookData , { new: true } );
+                await Books.findOneAndUpdate({ _id }, bookData, { new: true });
             }
-            let mycart = await Cart.findOneAndUpdate({ userId: body.userId }, { books: cartData.books , cart_total: totalCartPrice}, { new: true })
+            let mycart = await Cart.findOneAndUpdate({ userId: body.userId }, { books: cartData.books, cart_total: totalCartPrice }, { new: true })
             return mycart;
-         }
-         else{
+        }
+        else {
             throw new Error("Book not added in cart, enter valid book id")
-         }
+        }
 
     }
     else {
-      throw new Error("Cart is empty...");
+        throw new Error("Cart is empty...");
     }
-  };
+};
 
+
+//remove all books from cart
+export const removeAllBooksFromCart = async (body, _id) => {
+    const cartData = await Cart.findOne({ userId: body.userId });
+    console.log("cartData", cartData);
+    let totalCartPrice = cartData.cart_total;
+    let deleteBooks;
+    let found = false;
+    if (cartData != null) {
+        await cartData.books.forEach(element => {
+            if (element.productId == _id) {
+                totalCartPrice = totalCartPrice - (element.quantity * element.price);
+                deleteBooks = element.quantity;
+                cartData.books.splice(cartData.books.indexOf(element), 1);
+                found = true;
+            }
+        });
+        if (found) {
+            let bookData = await Books.findOne({ _id });
+            if (bookData != null) {
+                bookData.quantity += deleteBooks;
+                await Books.findOneAndUpdate({ _id }, bookData, { new: true });
+            }
+            let mycart = await Cart.findOneAndUpdate({ userId: body.userId }, { books: cartData.books, cart_total: totalCartPrice }, { new: true })
+            return mycart;
+        }
+        else {
+            throw new Error("Book not added in cart, enter valid book id")
+        }
+    }
+    else {
+        throw new Error("Cart is empty...");
+    }
+};

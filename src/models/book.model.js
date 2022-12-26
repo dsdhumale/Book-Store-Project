@@ -21,7 +21,7 @@ const bookSchema = new Schema(
       type: String
     },
     quantity: {
-      type: String
+      type: Number
     },
     price: {
       type: String

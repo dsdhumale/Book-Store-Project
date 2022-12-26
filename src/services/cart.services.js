@@ -64,3 +64,47 @@ export const addBookToCart = async (body, _id) => {
 
 }
 
+
+//remove single book from cart
+export const  removeBookFromCart = async (body,_id) => {
+    const cartData = await Cart.findOne({ userId: body.userId });
+    console.log("cartData", cartData);
+    let totalCartPrice = cartData.cart_total;
+    if (cartData != null) {
+        let flag = false;
+         await cartData.books.forEach(element => {
+            console.log("element...");
+            if(element.productId == _id && element.quantity > 1){
+                console.log("element....");
+                --element.quantity;
+                totalCartPrice -= element.price ;
+                flag =true;
+            }
+            else if(element.productId == _id && element.quantity == 1){
+                console.log("element......");
+                totalCartPrice -= element.price ;
+                console.log("index",cartData.books.indexOf(element));
+                cartData.books.splice(cartData.books.indexOf(element), 1);
+                flag =true;
+            }
+        
+         });    
+         if(flag){
+            let bookData = await Books.findOne({ _id });
+            if(bookData != null){
+                ++bookData.quantity;
+                await Books.findOneAndUpdate( { _id}, bookData , { new: true } );
+            }
+            let mycart = await Cart.findOneAndUpdate({ userId: body.userId }, { books: cartData.books , cart_total: totalCartPrice}, { new: true })
+            return mycart;
+         }
+         else{
+            throw new Error("Book not added in cart, enter valid book id")
+         }
+
+    }
+    else {
+      throw new Error("Cart is empty...");
+    }
+  };
+

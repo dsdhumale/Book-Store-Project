@@ -19,4 +19,19 @@ import * as cartService from '../services/cart.services';
   }
 };
 
-
+// To remove book from cart
+export const removeBookFromCart = async (req, res, next) => {
+  try {
+    const data = await cartService.removeBookFromCart(req.body,req.params._id);
+    res.status(HttpStatus.CREATED).json({
+      code: HttpStatus.CREATED,
+      data: data,
+      message: ' Book removed from cart successfully'
+    });
+  } catch (error) {
+    res.status(HttpStatus.BAD_REQUEST).json({
+      code: HttpStatus.BAD_REQUEST,
+      message: `${error}`
+})
+}
+};

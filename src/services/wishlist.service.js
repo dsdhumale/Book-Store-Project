@@ -16,27 +16,26 @@ export const addBookToWishlist = async (body, _id) => {
     }
 
     if (bookData != null) {
-        const wishlistdata= await Wishlist.findOne({ userId: body.userId });
+        const wishlistdata = await Wishlist.findOne({ userId: body.userId });
         if (wishlistdata == null) {
-            const createWishlist = await Wishlist.create({ userId: body.userId, books: [bookDetails],});
+            const createWishlist = await Wishlist.create({ userId: body.userId, books: [bookDetails], });
             return createWishlist;
-        } 
-        else if(wishlistdata != null){
-            let bookfound= false;
-           await wishlistdata.books.forEach(element => {
-                if(element.productId == _id){
+        }
+        else if (wishlistdata != null) {
+            let bookfound = false;
+            await wishlistdata.books.forEach(element => {
+                if (element.productId == _id) {
                     bookfound = true;
-                    throw new Error ("Book already exist in wish list")
+                    throw new Error("Book already exist in wish list")
                 }
             });
-            if(!bookfound){
-                let myWishlist = await Wishlist.findOneAndUpdate({ userId: body.userId }, { $push: {books: bookDetails }}, { new: true })
+            if (!bookfound) {
+                let myWishlist = await Wishlist.findOneAndUpdate({ userId: body.userId }, { $push: { books: bookDetails } }, { new: true })
                 return myWishlist;
             }
-        }      
+        }
     }
     else {
         throw new Error(" Book not found, Enter valid book details");
     }
-
 }
